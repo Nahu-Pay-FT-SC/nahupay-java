@@ -1,13 +1,16 @@
-name: Publish to GitHub Packages
+name: CI / Publish to GitHub Packages
 
 on:
   push:
+    branches: [main]
     tags:
       - "v*"
+  pull_request:
+    branches: [main]
 
 jobs:
-  publish:
-    name: Build and publish
+  build:
+    name: Build and test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -27,6 +30,7 @@ jobs:
         run: mvn --batch-mode clean verify
 
       - name: Publish to GitHub Packages
+        if: startsWith(github.ref, 'refs/tags/v')
         run: mvn --batch-mode deploy -DskipTests -s $GITHUB_WORKSPACE/settings.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
